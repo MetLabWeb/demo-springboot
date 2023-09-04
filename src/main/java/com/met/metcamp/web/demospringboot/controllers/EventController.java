@@ -17,13 +17,13 @@ public class EventController {
 
     @GetMapping("/{id}")
     public ResponseEntity getEventById(@PathVariable int id) {
-        //hacer cosas
+        //TODO completar
         return ResponseEntity.ok(Map.of("events:", String.format("[GET evento con id %s]", id)));
     }
 
     @PostMapping
     public ResponseEntity createEvent(@RequestBody String body) {
-        //hacemos cosas....
+        //TODO completar
         if (body.contains("*")) {
             return ResponseEntity.badRequest().body("LNo se permiten caracteres especiales");
         } else {
