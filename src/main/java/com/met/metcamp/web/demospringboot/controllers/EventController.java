@@ -1,8 +1,17 @@
 package com.met.metcamp.web.demospringboot.controllers;
 
+import com.met.metcamp.web.demospringboot.entities.model.Event;
+import com.met.metcamp.web.demospringboot.service.EventService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
@@ -10,26 +19,35 @@ import java.util.Map;
 @RequestMapping("/met/metcamp/web/events")
 public class EventController {
 
+    @Autowired
+    private EventService eventService;
+
     @GetMapping
-    public ResponseEntity getAllEvents() {
-        return ResponseEntity.ok(Map.of("events:", "[GET Lista de eventos]"));
+    public ResponseEntity<Map<String, Object>> getAllEvents() {
+        return ResponseEntity.ok(Map.of("events", eventService.getAllEvents()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity getEventById(@PathVariable int id) {
-        //TODO completar
-        return ResponseEntity.ok(Map.of("events:", String.format("[GET evento con id %s]", id)));
+    public ResponseEntity<Map<String, Event>> getEventById(@PathVariable int id) {
+        return ResponseEntity.ok(Map.of("event", eventService.getEventById(id)));
     }
 
     @PostMapping
-    public ResponseEntity createEvent(@RequestBody String body) {
-        //TODO completar
-        if (body.contains("*")) {
-            return ResponseEntity.badRequest().body("LNo se permiten caracteres especiales");
-        } else {
-            return ResponseEntity.ok(Map.of("datos recibidos:", body));
-        }
+    public ResponseEntity<Map<String, Event>> createEvent(@RequestBody Event event) {
+        return ResponseEntity.status(201).body(Map.of("event", eventService.createEvent(event)));
+    }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Map<String, Event>> updateEvent(@PathVariable int id,
+                                                          @RequestBody Event body) {
+        eventService.updateEvent(id, body);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Map<String, Object>> deleteEvent(@PathVariable int id) {
+        eventService.deleteEvent(id);
+        return ResponseEntity.noContent().build();
     }
 
 }
