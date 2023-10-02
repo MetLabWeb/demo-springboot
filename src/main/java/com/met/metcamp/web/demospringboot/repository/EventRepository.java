@@ -20,7 +20,7 @@ import static com.met.metcamp.web.demospringboot.utils.MapperUtils.mapToJson;
 public class EventRepository {
 
     private static final Logger logger = LogManager.getLogger();
-    private static final String PATH = "classpath:repository/events.json";
+    private static final String PATH = "src/main/resources/repository/events.json";
 
     @Getter
     private final ArrayList<Event> events;
