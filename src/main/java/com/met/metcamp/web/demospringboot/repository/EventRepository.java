@@ -2,7 +2,6 @@ package com.met.metcamp.web.demospringboot.repository;
 
 import com.met.metcamp.web.demospringboot.entities.model.Event;
 import com.met.metcamp.web.demospringboot.exceptions.RepoException;
-import com.met.metcamp.web.demospringboot.utils.MapperUtils;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,41 +9,44 @@ import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Optional;
+
+import static com.met.metcamp.web.demospringboot.utils.MapperUtils.mapToEventList;
+import static com.met.metcamp.web.demospringboot.utils.MapperUtils.mapToJson;
 
 @Repository
 public class EventRepository {
 
     private static final Logger logger = LogManager.getLogger();
+    private static final String PATH = "classpath:repository/events.json";
 
     @Getter
     private final ArrayList<Event> events;
 
-    private final MapperUtils mapperUtils;
+    private Integer nextId;
 
-    public EventRepository(MapperUtils mapperUtils) {
-        this.mapperUtils = mapperUtils;
+    public EventRepository() {
         this.events = loadEvents();
+        this.nextId = events.stream().mapToInt(Event::getId).max().orElse(1);
     }
 
     private ArrayList<Event> loadEvents() {
-        String path = "src/main/resources/repository/events.json";
         try {
-            byte[] bytes = Files.readAllBytes(Paths.get(path));
+            byte[] bytes = Files.readAllBytes(Path.of(PATH));
             String input = new String(bytes);
-            return this.mapperUtils.mapToEventList(input);
+            return mapToEventList(input);
         } catch (IOException io) {
-            logger.fatal("Error reading file located at {} ", path);
+            logger.fatal("Error reading file located at {} ", PATH);
             throw new RepoException("Error reading file");
         }
     }
 
     private void save() {
         try {
-            String datos = mapperUtils.mapToJson(events);
-            Files.writeString(Paths.get("src/main/resources/repository/events.json"), datos);
+            String datos = mapToJson(events);
+            Files.writeString(Path.of(PATH), datos);
         } catch (IOException io) {
             throw new RepoException("Error writing file");
         }
@@ -55,8 +57,10 @@ public class EventRepository {
     }
 
     public void add(Event newEvent) {
+        newEvent.setId(nextId);
         events.add(newEvent);
         save();
+        nextId += 1;
     }
 
     public void delete(int id) {

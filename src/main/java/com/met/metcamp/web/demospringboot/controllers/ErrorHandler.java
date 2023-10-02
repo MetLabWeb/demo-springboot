@@ -6,6 +6,7 @@ import com.met.metcamp.web.demospringboot.exceptions.RepoException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -26,6 +27,12 @@ public class ErrorHandler {
     protected ResponseEntity<Map<String, Object>> apiExceptionHandler(ApiException e) {
         logger.error(e.getMessage(), e);
         return ResponseEntity.status(e.getStatus()).body(Map.of("message", e.getMessage()));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    protected ResponseEntity<Map<String, Object>> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e) {
+        logger.error("Invalid data: {}", e.getMessage(), e);
+        return ResponseEntity.badRequest().body(Map.of("message", e.getBindingResult().getAllErrors().get(0).getDefaultMessage()));
     }
 
     @ExceptionHandler(Exception.class)

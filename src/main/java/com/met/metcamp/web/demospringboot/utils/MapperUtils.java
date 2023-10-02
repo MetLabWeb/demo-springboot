@@ -9,11 +9,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 
-@Component
 public class MapperUtils {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    public Event mapToEvent(String input) {
+    public static Event mapToEvent(String input) {
         try {
             return MAPPER.readValue(input, Event.class);
         } catch (JsonProcessingException e) {
@@ -21,7 +20,7 @@ public class MapperUtils {
         }
     }
 
-    public ArrayList<Event> mapToEventList(String input) {
+    public static ArrayList<Event> mapToEventList(String input) {
        try {
             TypeReference<ArrayList<Event>> typeRef = new TypeReference<>() {
             };
@@ -31,7 +30,7 @@ public class MapperUtils {
        }
     }
 
-    public String mapToJson(Event event) {
+    public static String mapToJson(Event event) {
         try {
             return MAPPER.writeValueAsString(event);
         } catch (JsonProcessingException e) {
@@ -39,7 +38,7 @@ public class MapperUtils {
         }
     }
 
-    public String mapToJson(ArrayList<Event> eventList) {
+    public static String mapToJson(ArrayList<Event> eventList) {
         try {
             return MAPPER.writeValueAsString(eventList);
         } catch (JsonProcessingException e) {

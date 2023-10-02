@@ -2,6 +2,7 @@ package com.met.metcamp.web.demospringboot.controllers;
 
 import com.met.metcamp.web.demospringboot.entities.model.Event;
 import com.met.metcamp.web.demospringboot.service.EventService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,13 +34,13 @@ public class EventController {
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, Event>> createEvent(@RequestBody Event event) {
+    public ResponseEntity<Map<String, Event>> createEvent(@Valid @RequestBody Event event) {
         return ResponseEntity.status(201).body(Map.of("event", eventService.createEvent(event)));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Event>> updateEvent(@PathVariable int id,
-                                                          @RequestBody Event body) {
+                                                          @Valid @RequestBody Event body) {
         eventService.updateEvent(id, body);
         return ResponseEntity.ok().build();
     }

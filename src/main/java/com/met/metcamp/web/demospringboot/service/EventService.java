@@ -6,27 +6,19 @@ import com.met.metcamp.web.demospringboot.repository.EventRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class EventService {
     private final EventRepository repository;
-    private final ValidationService validationService;
 
-    public EventService(EventRepository repository, ValidationService validationService) {
+    public EventService(EventRepository repository) {
         this.repository = repository;
-        this.validationService = validationService;
     }
 
     public Event createEvent(Event event) {
-        validationService.validateCreateEvent(event);
-        Optional<Event> foundEvent = repository.find(event.getId());
-        if (foundEvent.isPresent()) {
-            throw new ApiException(400, String.format("Event %s already exists", event.getId()));
-        } else {
-            repository.add(event);
-            return event;
-        }
+        checkDates(event);
+        repository.add(event);
+        return event;
     }
 
     public List<Event> getAllEvents() {
@@ -42,21 +34,30 @@ public class EventService {
     public void updateEvent(int id, Event newData) {
         repository.find(id)
                 .ifPresentOrElse(event -> {
+                            checkDates(newData);
                             event.update(newData);
-                            validationService.validateUpdateEvent(event);
                             repository.update(id, event);
                         },
-                        () -> { throw new ApiException(404,
-                                String.format("Event %s doesn't exists", id)); }
+                        () -> {
+                            throw new ApiException(404,
+                                    String.format("Event %s doesn't exists", id));
+                        }
                 );
     }
 
     public void deleteEvent(int id) {
         repository.find(id)
                 .ifPresentOrElse(event -> repository.delete(id),
-                                 () -> { throw new ApiException(404,
-                                         String.format("Event %s doesn't exists", id)); }
+                        () -> {
+                            throw new ApiException(404,
+                                    String.format("Event %s doesn't exists", id));
+                        }
                 );
     }
 
+    private void checkDates(Event event) {
+        if (event.getStartDateTime().isAfter(event.getEndDateTime())) {
+            throw new ApiException(400, "Start date must be before end date");
+        }
+    }
 }
